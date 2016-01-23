@@ -1,20 +1,15 @@
 # BotGame
 
-**TODO: Add description**
+Slack bot for games.
 
-## Installation
+## Setup
 
-If [available in Hex](https://hex.pm/docs/publish), the package can be installed as:
+* `mix deps.get`
+* `mix run --no-halt` or `iex -S mix`
 
-  1. Add bot_game to your list of dependencies in `mix.exs`:
+## Configuration
 
-        def deps do
-          [{:bot_game, "~> 0.0.1"}]
-        end
+Create a secret config file (`config/secret.exs`), which is where you'll
+provide the Slack bot token.
 
-  2. Ensure bot_game is started before your application:
-
-        def application do
-          [applications: [:bot_game]]
-        end
-
+There's an example of the config at [config/config.exs](config/config.exs).
