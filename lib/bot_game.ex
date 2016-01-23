@@ -1,0 +1,2 @@
+defmodule BotGame do
+end
