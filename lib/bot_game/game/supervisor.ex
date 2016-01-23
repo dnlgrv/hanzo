@@ -5,8 +5,8 @@ defmodule BotGame.Game.Supervisor do
     Supervisor.start_link(__MODULE__, :ok, name: __MODULE__)
   end
 
-  def start_game(slack) do
-    Supervisor.start_child(__MODULE__, [slack])
+  def start_game(slack, channel, name) do
+    Supervisor.start_child(__MODULE__, [slack, channel, name])
   end
 
   def init(:ok) do

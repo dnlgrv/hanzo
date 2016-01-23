@@ -8,21 +8,46 @@ defmodule BotGame.Slack do
   end
 
   def handle_connect(slack, state) do
-    {:ok, game} = BotGame.Game.Supervisor.start_game(slack)
-    {:ok, %{id: slack.me.id, game: game}}
+    {:ok, %{id: slack.me.id, started_games: []}}
   end
 
-  def handle_message(message, slack, %{id: id, game: game}) do
-    {id, game} = handle_incoming_message(message, slack, id, game)
-    {:ok, %{id: id, game: game}}
+  def handle_message(message, slack, state = %{id: id, started_games: games}) do
+    games = handle_incoming_message(message, slack, id, games)
+    {:ok, %{id: id, started_games: games}}
   end
-
 
   def handle_incoming_message(message = %{type: "message",
-                                          channel: <<"D", _rest::binary>>,
-                                          text: "help"}, slack, id, game) do
-    BotGame.Game.send_instructions(message.channel)
-    {id, game}
+                                          text: "start",
+                                          channel: <<"D", _rest::binary>>},
+                              slack, id, games) do
+    if Enum.member?(games, message.user) do
+      Slack.send_message("Finish the game you've started first. If you've had enough, type 'stop' to finish playing.", message.channel, slack)
+    else
+      {:ok, _game} = BotGame.Game.Supervisor.start_game(slack, message.channel, message.user)
+      games = [message.user | games]
+    end
+
+    games
   end
-  def handle_incoming_message(message, slack, id, game), do: {id, game}
+
+  def handle_incoming_message(message = %{type: "message",
+                                          text: "stop",
+                                          channel: <<"D", _rest::binary>>},
+                              slack, id, games) do
+    if Enum.member?(games, message.user) do
+      BotGame.Game.stop(message.user)
+      games = Enum.filter(games, &(&1 != message.user))
+    end
+
+    games
+  end
+
+  def handle_incoming_message(message = %{type: "message",
+                                          text: "help",
+                                          channel: <<"D", _rest::binary>>},
+                              slack, id, games) do
+    Slack.send_message("Type 'start' to start playing.", message.channel, slack)
+    games
+  end
+  def handle_incoming_message(message, slack, id, games), do: games
 end
