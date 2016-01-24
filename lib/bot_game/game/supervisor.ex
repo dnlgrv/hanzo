@@ -5,15 +5,18 @@ defmodule BotGame.Game.Supervisor do
     Supervisor.start_link(__MODULE__, :ok, name: __MODULE__)
   end
 
-  def start_game(slack, channel, name) do
-    Supervisor.start_child(__MODULE__, [slack, channel, name])
-  end
-
   def init(:ok) do
     children = [
-      worker(BotGame.Game, [], restart: :temporary)
+      worker(BotGame.Game, [])
     ]
 
-    supervise(children, strategy: :simple_one_for_one)
+    supervise(children, strategy: :one_for_one)
+  end
+
+  def register_games do
+    {:ok, spawn fn ->
+      :global.whereis_name({:game, BotGame.Game})
+      |> BotGame.Slack.Dispatcher.register()
+    end}
   end
 end
