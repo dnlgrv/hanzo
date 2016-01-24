@@ -16,7 +16,8 @@ defmodule BotGame.Mixfile do
   end
 
   defp deps do
-    [{:slack, "~> 0.4.0"},
-     {:websocket_client, github: "sanmiguel/websocket_client"}]
+    [#{:slack, "~> 0.4.0"},
+     {:slack, git: "https://github.com/cazrin/Elixir-Slack", branch: "fix-handle-info-to-update-state"},
+     {:websocket_client, git: "https://github.com/jeremyong/websocket_client.git"}]
   end
 end
