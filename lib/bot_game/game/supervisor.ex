@@ -7,6 +7,7 @@ defmodule BotGame.Game.Supervisor do
 
   def init(:ok) do
     children = [
+      supervisor(BotGame.Player.Supervisor, []),
       worker(BotGame.Game, [])
     ]
 
