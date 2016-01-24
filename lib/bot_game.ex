@@ -5,8 +5,8 @@ defmodule BotGame do
     import Supervisor.Spec
 
     children = [
-      supervisor(BotGame.Game.Supervisor, []),
-      worker(BotGame.Slack, [])
+      supervisor(BotGame.Slack.Supervisor, []),
+      supervisor(BotGame.Game.Supervisor, [])
     ]
 
     Supervisor.start_link(children, strategy: :one_for_one)
