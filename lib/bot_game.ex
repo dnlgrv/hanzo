@@ -6,9 +6,7 @@ defmodule BotGame do
 
     children = [
       supervisor(BotGame.Slack.Supervisor, []),
-      supervisor(BotGame.Game.Supervisor, []),
-      worker(BotGame.Game.Supervisor, [], id: :register_games,
-        function: :register_games, restart: :temporary)
+      supervisor(BotGame.Game.Supervisor, [])
     ]
 
     Supervisor.start_link(children, strategy: :one_for_one)

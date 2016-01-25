@@ -8,7 +8,6 @@ defmodule BotGame.Slack.Supervisor do
   def init(:ok) do
     children = [
       worker(BotGame.Slack, []),
-      worker(BotGame.Slack.Dispatcher, []),
       worker(BotGame.Slack.Client, [BotGame.Slack])
     ]
 
