@@ -7,6 +7,8 @@ defmodule BotGame.Slack do
   at all times as we can't provide a global name for `Slack.Client`.
   """
 
+  @token Application.get_env(:bot_game, __MODULE__)[:token]
+
   use GenServer
   require Logger
 
@@ -45,6 +47,16 @@ defmodule BotGame.Slack do
     GenServer.cast(__MODULE__, {:send_dm, message, id})
   end
 
+  @doc ~S"""
+  Sends an image to the specified channel. Requires a title and image URL.
+  """
+  def send_image(title, image_url, channel) do
+    GenServer.cast(__MODULE__, {:send_image, title, image_url, channel})
+  end
+
+  @doc ~S"""
+  Updates the reference to the Slack client.
+  """
   def handle_cast({:connect, client_ref}, _state) do
     {:noreply, client_ref}
   end
@@ -82,11 +94,32 @@ defmodule BotGame.Slack do
     {:noreply, client_ref}
   end
 
+  @doc ~S"""
+  Sends an attachment containing an image URL to the Slack API.
+  """
+  def handle_cast({:send_image, title, image_url, channel}, client_ref) do
+    attachments =
+      [%{title: title, fallback: title, text: "", image_url: image_url}]
+      |> JSX.encode!()
+
+    api_url("chat.postMessage") <> "&channel=#{channel}&as_user=true&attachments=#{attachments}"
+    |> HTTPoison.get()
+
+    {:noreply, client_ref}
+  end
+
+  @doc ~S"""
+  Simple handoff to `Slack.Client`.
+  """
   def handle_cast(message = {:send_message, _message, _channel}, client_ref) do
     send(client_ref, message)
     {:noreply, client_ref}
   end
 
+
+  defp api_url(endpoint) do
+    "https://slack.com/api/#{endpoint}?token=#{@token}"
+  end
 
   defp debug_message(message) do
     msg = ["Incoming message"] ++ Enum.map(message, fn
