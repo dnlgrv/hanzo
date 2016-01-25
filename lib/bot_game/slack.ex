@@ -20,7 +20,6 @@ defmodule BotGame.Slack do
     {:ok, []}
   end
 
-
   def connect(client_ref) do
     GenServer.cast(__MODULE__, {:connect, client_ref})
   end

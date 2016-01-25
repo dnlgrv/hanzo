@@ -5,8 +5,8 @@ defmodule BotGame.Game.Player.Supervisor do
     Supervisor.start_link(__MODULE__, :ok, name: __MODULE__)
   end
 
-  def start_player(channel, id) do
-    Supervisor.start_child(__MODULE__, [channel, id])
+  def new_player(id, game_id) do
+    Supervisor.start_child(__MODULE__, [id, game_id])
   end
 
   def init(:ok) do

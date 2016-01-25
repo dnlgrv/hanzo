@@ -10,8 +10,19 @@ defmodule BotGame.Game do
   end
 
   def init(channel) do
-    BotGame.Slack.send_message("Game started", channel)
-    {:ok, channel}
+    BotGame.Slack.send_message("Game started.\nIf you want to participate, just @ me saying 'play'.", channel)
+    {:ok, %{channel: channel, players: []}}
+  end
+
+  def new_player(id, channel) do
+    GenServer.cast(via_tuple(channel), {:new_player, id})
+  end
+
+  def handle_cast({:new_player, id}, state = %{channel: channel, players: players}) do
+    BotGame.Slack.send_message("<@#{id}> has joined the game!", channel)
+    BotGame.Game.Player.Supervisor.new_player(id, channel)
+    players = [id | players]
+    {:noreply, Map.put(state, :players, players)}
   end
 
   defp via_tuple(channel) do
