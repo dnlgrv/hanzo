@@ -14,8 +14,4 @@ defmodule BotGame.Slack.Supervisor do
 
     supervise(children, strategy: :one_for_one)
   end
-
-  def handle_info(msg, state) do
-    {:noreply, state}
-  end
 end
