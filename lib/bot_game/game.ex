@@ -15,6 +15,6 @@ defmodule BotGame.Game do
   end
 
   defp via_tuple(channel) do
-    {:via, BotGame.Game.Registry, channel}
+    {:via, BotGame.Registry, {:game, channel}}
   end
 end

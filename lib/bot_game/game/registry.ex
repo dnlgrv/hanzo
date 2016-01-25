@@ -1,4 +1,4 @@
-defmodule BotGame.Game.Registry do
+defmodule BotGame.Registry do
   use GenServer
   import Kernel, except: [send: 2]
 
