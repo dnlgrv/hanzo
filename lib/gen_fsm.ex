@@ -31,7 +31,6 @@ defmodule GenFSM do
       end
 
       def handle_info(info, state_name, state_data) do
-        :gen_fsm.send_event_after(@delay, info)
         {:next_state, state_name, state_data}
       end
 
