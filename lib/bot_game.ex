@@ -5,6 +5,7 @@ defmodule BotGame do
     import Supervisor.Spec
 
     children = [
+      worker(BotGame.Game.Registry, []),
       supervisor(BotGame.Slack.Supervisor, []),
       supervisor(BotGame.Game.Supervisor, [])
     ]

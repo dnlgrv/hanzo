@@ -17,6 +17,7 @@ defmodule BotGame.Slack.Client do
     start_link(@token, mod)
   end
 
+
   def handle_connect(slack, parent) do
     parent.connect(self)
     {:ok, parent}

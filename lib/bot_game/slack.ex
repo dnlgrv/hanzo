@@ -43,9 +43,27 @@ defmodule BotGame.Slack do
     {:noreply, client_ref}
   end
 
-  def handle_cast({:incoming_message, message, _slack}, client_ref) do
-    # Do something with an incoming message
-    debug_message(message)
+  @doc ~S"""
+  Dispatches incoming `type: message` messages to `BotGame.Commander`.
+
+  Matches on whether it is a direct message or an @ message to the bot, and
+  calls the appropriate function.
+  """
+  def handle_cast({:incoming_message, msg = %{type: "message"}, slack}, client_ref) do
+    debug_message(msg)
+
+    cond do
+      String.starts_with?(msg.channel, "D") ->
+        BotGame.Commander.direct_message(msg)
+      String.starts_with?(msg.text, "<@#{slack.me.id}>:") && !String.starts_with?(msg.text, "D") ->
+        BotGame.Commander.at_message(msg)
+      true ->
+        :ok
+    end
+
+    {:noreply, client_ref}
+  end
+  def handle_cast({:incoming_message, _msg, _slack}, client_ref) do
     {:noreply, client_ref}
   end
 

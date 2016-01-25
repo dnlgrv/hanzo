@@ -5,8 +5,15 @@ defmodule BotGame.Game.Supervisor do
     Supervisor.start_link(__MODULE__, :ok, name: __MODULE__)
   end
 
+  def start_game(channel) do
+    Supervisor.start_child(__MODULE__, [channel])
+  end
+
   def init(:ok) do
-    children = []
-    supervise(children, strategy: :one_for_one)
+    children = [
+      worker(BotGame.Game, [], restart: :transient)
+    ]
+
+    supervise(children, strategy: :simple_one_for_one)
   end
 end
