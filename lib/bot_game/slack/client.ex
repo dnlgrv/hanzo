@@ -11,7 +11,7 @@ defmodule BotGame.Slack.Client do
 
   use Slack
 
-  @token Application.get_env(:bot_game, __MODULE__)[:token]
+  @token Application.get_env(:bot_game, BotGame.Slack)[:token]
 
   def start_link(mod) do
     start_link(@token, mod)
@@ -29,6 +29,12 @@ defmodule BotGame.Slack.Client do
   end
 
   def handle_info({:send_message, message, channel}, slack, parent) do
+    Slack.send_message(message, channel, slack)
+    {:ok, parent}
+  end
+
+  def handle_info({:send_dm, message, id}, slack, parent) do
+    channel = BotGame.Slack.Channel.direct_message(id)
     Slack.send_message(message, channel, slack)
     {:ok, parent}
   end

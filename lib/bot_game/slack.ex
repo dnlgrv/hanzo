@@ -38,6 +38,12 @@ defmodule BotGame.Slack do
     GenServer.cast(__MODULE__, {:send_message, message, channel})
   end
 
+  @doc ~S"""
+  Send a direct message to a Slack user. ID is the user ID from Slack.
+  """
+  def send_dm(message, id) do
+    GenServer.cast(__MODULE__, {:send_dm, message, id})
+  end
 
   def handle_cast({:connect, client_ref}, _state) do
     {:noreply, client_ref}
@@ -64,6 +70,11 @@ defmodule BotGame.Slack do
     {:noreply, client_ref}
   end
   def handle_cast({:incoming_message, _msg, _slack}, client_ref) do
+    {:noreply, client_ref}
+  end
+
+  def handle_cast(message = {:send_dm, _message, _id}, client_ref) do
+    send(client_ref, message)
     {:noreply, client_ref}
   end
 

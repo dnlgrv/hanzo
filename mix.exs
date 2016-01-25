@@ -11,13 +11,15 @@ defmodule BotGame.Mixfile do
   end
 
   def application do
-    [applications: [:logger, :slack],
+    [applications: [:logger, :slack, :httpoison],
      mod: {BotGame, []}]
   end
 
   defp deps do
     [#{:slack, "~> 0.4.0"},
      {:slack, git: "https://github.com/cazrin/Elixir-Slack", branch: "fix-handle-info-to-update-state"},
-     {:websocket_client, git: "https://github.com/jeremyong/websocket_client.git"}]
+     {:websocket_client, git: "https://github.com/jeremyong/websocket_client.git"},
+     {:httpoison, "~> 0.8.1"},
+     {:exjsx, "~> 3.1.0"}]
   end
 end

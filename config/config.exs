@@ -1,6 +1,6 @@
 use Mix.Config
 
-# config :bot_game, BotGame.Slack.Client,
+# config :bot_game, BotGame.Slack,
 #   token: "BOT TOKEN"
 
 config :logger, :console,

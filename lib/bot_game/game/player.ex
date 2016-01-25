@@ -7,6 +7,7 @@ defmodule BotGame.Game.Player do
 
   def init(state = {channel, id}) do
     BotGame.Slack.send_message("<@#{id}> has joined the game!", channel)
+    BotGame.Slack.send_dm("Welcome to the game!", id)
     {:ok, state}
   end
 
