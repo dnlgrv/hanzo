@@ -1,4 +1,21 @@
 defmodule GenFSM do
+  @moduledoc ~S"""
+  A behaviour module for implementing a FSM server.
+
+  ## Example
+
+      defmodule Quiz do
+        use GenFSM
+
+        def init(:ok) do
+          {:next_state, :play, []}
+        end
+      end
+
+      # Start the server
+      GenFSM.start_link(Quiz, name: Quiz)
+  """
+
   defmacro __using__(_) do
     quote do
       @behaviour :gen_fsm
