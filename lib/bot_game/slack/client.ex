@@ -32,10 +32,4 @@ defmodule BotGame.Slack.Client do
     Slack.send_message(message, channel, slack)
     {:ok, parent}
   end
-
-  def handle_info({:send_dm, message, id}, slack, parent) do
-    channel = BotGame.Slack.Channel.direct_message(id)
-    Slack.send_message(message, channel, slack)
-    {:ok, parent}
-  end
 end

@@ -73,8 +73,12 @@ defmodule BotGame.Slack do
     {:noreply, client_ref}
   end
 
-  def handle_cast(message = {:send_dm, _message, _id}, client_ref) do
-    send(client_ref, message)
+  @doc ~S"""
+  Retrieves the user's DM channel, then forwards the message on.
+  """
+  def handle_cast({:send_dm, message, id}, client_ref) do
+    channel = BotGame.Slack.Channel.direct_message(id)
+    send_message(message, channel)
     {:noreply, client_ref}
   end
 
@@ -85,8 +89,11 @@ defmodule BotGame.Slack do
 
 
   defp debug_message(message) do
-    msg = ["Incoming message"] ++ Enum.map(message, fn ({k, v}) ->
-      "#{k}: #{v}"
+    msg = ["Incoming message"] ++ Enum.map(message, fn
+      {k, v} when is_bitstring(v) ->
+        "#{k}: #{v}"
+      {k, _v} ->
+        "#{k}: Can't print value"
     end)
     Logger.debug Enum.join(msg, "\n")
   end
