@@ -6,18 +6,7 @@ defmodule BotGame.Game.Supervisor do
   end
 
   def init(:ok) do
-    children = [
-      supervisor(BotGame.Player.Supervisor, []),
-      worker(BotGame.Game, [])
-    ]
-
+    children = []
     supervise(children, strategy: :one_for_one)
-  end
-
-  def register_games do
-    {:ok, spawn fn ->
-      :global.whereis_name({:game, BotGame.Game})
-      |> BotGame.Slack.Dispatcher.register()
-    end}
   end
 end
