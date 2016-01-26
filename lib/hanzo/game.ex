@@ -1,31 +1,53 @@
 defmodule Hanzo.Game do
-  use GenServer
+  use GenFSM
+
+  alias Hanzo.Game.Data
+  import Hanzo.Slack, only: [send_message: 2]
 
   def start_link(channel) do
-    GenServer.start_link(__MODULE__, channel, name: via_tuple(channel))
+    GenFSM.start_link(__MODULE__, Data.new(channel), name: via_tuple(channel))
   end
 
-  def stop(channel) do
-    GenServer.stop(via_tuple(channel))
+  def init(data) do
+    {:ok, data.state, data, 0}
   end
 
-  def init(channel) do
-    Hanzo.Slack.send_message("Game started.\nIf you want to participate, just @ me saying 'play'.", channel)
-    {:ok, %{channel: channel, players: []}}
+  def new_player(user, channel) do
+    case Hanzo.Registry.whereis_name(ref(channel)) do
+      :undefined -> :ok # Game isn't running
+      pid -> :gen_fsm.send_event(pid, {:new_player, user})
+    end
   end
 
-  def new_player(id, channel) do
-    GenServer.cast(via_tuple(channel), {:new_player, id})
+  # States
+
+  def start(:timeout, data) do
+    send_message("Game started.\nIf you want to participate, just @ me saying 'play'.", data.channel)
+    data = Data.put_state(data, :playing)
+    {:next_state, data.state, data}
   end
 
-  def handle_cast({:new_player, id}, state = %{channel: channel, players: players}) do
-    Hanzo.Slack.send_message("<@#{id}> has joined the game!", channel)
-    Hanzo.Game.Player.Supervisor.new_player(id, channel)
-    players = [id | players]
-    {:noreply, Map.put(state, :players, players)}
+  def playing({:new_player, id}, data) do
+    case Hanzo.Game.Player.Supervisor.new_player(id, data.channel) do
+      {:ok, _} ->
+        send_message("<@#{id}> has joined the game!", data.channel)
+        data = Data.put_player(data, id)
+      _ -> :ok
+    end
+
+    {:next_state, data.state, data}
+  end
+  def playing(_msg, data) do
+    {:next_state, data.state, data}
+  end
+
+  # Private
+
+  defp ref(channel) do
+    {:game, channel}
   end
 
   defp via_tuple(channel) do
-    {:via, Hanzo.Registry, {:game, channel}}
+    {:via, Hanzo.Registry, ref(channel)}
   end
 end

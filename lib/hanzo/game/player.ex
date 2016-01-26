@@ -28,7 +28,7 @@ defmodule Hanzo.Game.Player do
   def answer(message) do
     case Hanzo.Registry.whereis_name(ref(message.user)) do
       :undefined -> :ok # user hasn't started playing
-      _ -> :gen_fsm.sync_send_event(via_tuple(message.user), message.text)
+      pid -> :gen_fsm.sync_send_event(pid, message.text)
     end
   end
 
