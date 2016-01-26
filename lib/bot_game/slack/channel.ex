@@ -1,4 +1,4 @@
-defmodule BotGame.Slack.Channel do
+defmodule Hanzo.Slack.Channel do
   @moduledoc ~S"""
   Stores references to DM channels for users.
 
@@ -7,7 +7,7 @@ defmodule BotGame.Slack.Channel do
 
   use GenServer
 
-  @token Application.get_env(:bot_game, BotGame.Slack)[:token]
+  @token Application.get_env(:hanzo, Hanzo.Slack)[:token]
 
   def start_link do
     GenServer.start_link(__MODULE__, %{}, name: __MODULE__)

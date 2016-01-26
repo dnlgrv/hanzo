@@ -1,8 +1,8 @@
-defmodule BotGame.Mixfile do
+defmodule Hanzo.Mixfile do
   use Mix.Project
 
   def project do
-    [app: :bot_game,
+    [app: :hanzo,
      version: "0.0.1",
      elixir: "~> 1.2",
      build_embedded: Mix.env == :prod,
@@ -12,7 +12,7 @@ defmodule BotGame.Mixfile do
 
   def application do
     [applications: [:logger, :slack, :httpoison],
-     mod: {BotGame, []}]
+     mod: {Hanzo, []}]
   end
 
   defp deps do

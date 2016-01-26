@@ -1,4 +1,4 @@
-defmodule BotGame.Slack do
+defmodule Hanzo.Slack do
   @module ~S"""
   Our module for handling everything related to Slack communication.
 
@@ -7,7 +7,7 @@ defmodule BotGame.Slack do
   at all times as we can't provide a global name for `Slack.Client`.
   """
 
-  @token Application.get_env(:bot_game, __MODULE__)[:token]
+  @token Application.get_env(:hanzo, __MODULE__)[:token]
 
   use GenServer
   require Logger
@@ -61,7 +61,7 @@ defmodule BotGame.Slack do
   end
 
   @doc ~S"""
-  Dispatches incoming `type: message` messages to `BotGame.Commander`.
+  Dispatches incoming `type: message` messages to `Hanzo.Commander`.
 
   Matches on whether it is a direct message or an @ message to the bot, and
   calls the appropriate function.
@@ -71,9 +71,9 @@ defmodule BotGame.Slack do
 
     cond do
       String.starts_with?(msg.channel, "D") ->
-        BotGame.Commander.direct_message(msg)
+        Hanzo.Commander.direct_message(msg)
       String.starts_with?(msg.text, "<@#{slack.me.id}>:") && !String.starts_with?(msg.text, "D") ->
-        BotGame.Commander.at_message(msg)
+        Hanzo.Commander.at_message(msg)
       true ->
         :ok
     end
@@ -88,7 +88,7 @@ defmodule BotGame.Slack do
   Retrieves the user's DM channel, then forwards the message on.
   """
   def handle_cast({:send_dm, message, id}, client_ref) do
-    channel = BotGame.Slack.Channel.direct_message(id)
+    channel = Hanzo.Slack.Channel.direct_message(id)
     send_message(message, channel)
     {:noreply, client_ref}
   end

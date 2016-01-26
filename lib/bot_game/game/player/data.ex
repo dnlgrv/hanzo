@@ -1,4 +1,4 @@
-defmodule BotGame.Game.Player.Data do
+defmodule Hanzo.Game.Player.Data do
   defstruct id: nil, game_id: nil, answers: %{}, questions: [],
   current_question: 0
 

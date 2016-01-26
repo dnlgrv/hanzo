@@ -1,4 +1,4 @@
-defmodule BotGame.Commander do
+defmodule Hanzo.Commander do
   @moduledoc ~S"""
   Handles all of the bot commands.
 
@@ -9,7 +9,7 @@ defmodule BotGame.Commander do
   If the message is a direct message to the bot.
   """
   def direct_message(message) do
-    BotGame.Game.Player.answer(message)
+    Hanzo.Game.Player.answer(message)
   end
 
   @doc ~S"""
@@ -18,10 +18,10 @@ defmodule BotGame.Commander do
   def at_message(message) do
     cond do
       String.contains?(message.text, "start game") ->
-        BotGame.Game.Supervisor.start_game(message.channel)
+        Hanzo.Game.Supervisor.start_game(message.channel)
 
       String.contains?(message.text, "play") ->
-        BotGame.Game.new_player(message.user, message.channel)
+        Hanzo.Game.new_player(message.user, message.channel)
 
       true -> :ok
     end

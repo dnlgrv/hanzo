@@ -1,4 +1,4 @@
-defmodule BotGame.Registry do
+defmodule Hanzo.Registry do
   use GenServer
   import Kernel, except: [send: 2]
 

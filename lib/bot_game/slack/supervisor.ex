@@ -1,4 +1,4 @@
-defmodule BotGame.Slack.Supervisor do
+defmodule Hanzo.Slack.Supervisor do
   use Supervisor
 
   def start_link do
@@ -7,9 +7,9 @@ defmodule BotGame.Slack.Supervisor do
 
   def init(:ok) do
     children = [
-      worker(BotGame.Slack, []),
-      worker(BotGame.Slack.Channel, []),
-      worker(BotGame.Slack.Client, [BotGame.Slack])
+      worker(Hanzo.Slack, []),
+      worker(Hanzo.Slack.Channel, []),
+      worker(Hanzo.Slack.Client, [Hanzo.Slack])
     ]
 
     supervise(children, strategy: :one_for_one)

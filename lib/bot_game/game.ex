@@ -1,4 +1,4 @@
-defmodule BotGame.Game do
+defmodule Hanzo.Game do
   use GenServer
 
   def start_link(channel) do
@@ -10,7 +10,7 @@ defmodule BotGame.Game do
   end
 
   def init(channel) do
-    BotGame.Slack.send_message("Game started.\nIf you want to participate, just @ me saying 'play'.", channel)
+    Hanzo.Slack.send_message("Game started.\nIf you want to participate, just @ me saying 'play'.", channel)
     {:ok, %{channel: channel, players: []}}
   end
 
@@ -19,13 +19,13 @@ defmodule BotGame.Game do
   end
 
   def handle_cast({:new_player, id}, state = %{channel: channel, players: players}) do
-    BotGame.Slack.send_message("<@#{id}> has joined the game!", channel)
-    BotGame.Game.Player.Supervisor.new_player(id, channel)
+    Hanzo.Slack.send_message("<@#{id}> has joined the game!", channel)
+    Hanzo.Game.Player.Supervisor.new_player(id, channel)
     players = [id | players]
     {:noreply, Map.put(state, :players, players)}
   end
 
   defp via_tuple(channel) do
-    {:via, BotGame.Registry, {:game, channel}}
+    {:via, Hanzo.Registry, {:game, channel}}
   end
 end

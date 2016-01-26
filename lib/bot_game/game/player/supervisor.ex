@@ -1,4 +1,4 @@
-defmodule BotGame.Game.Player.Supervisor do
+defmodule Hanzo.Game.Player.Supervisor do
   use Supervisor
 
   def start_link do
@@ -11,7 +11,7 @@ defmodule BotGame.Game.Player.Supervisor do
 
   def init(:ok) do
     children = [
-      worker(BotGame.Game.Player, [], restart: :transient)
+      worker(Hanzo.Game.Player, [], restart: :transient)
     ]
 
     supervise(children, strategy: :simple_one_for_one)

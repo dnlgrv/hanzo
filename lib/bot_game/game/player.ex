@@ -1,6 +1,6 @@
-defmodule BotGame.Game.Player do
+defmodule Hanzo.Game.Player do
   use GenFSM
-  alias BotGame.Game.Player.Data
+  alias Hanzo.Game.Player.Data
 
   @questions [
     %{
@@ -26,8 +26,8 @@ defmodule BotGame.Game.Player do
   end
 
   def answer(message) do
-    case BotGame.Registry.whereis_name({:player, message.user}) do
-      :undefined -> :ok
+    case Hanzo.Registry.whereis_name(ref(message.user)) do
+      :undefined -> :ok # user hasn't started playing
       _ -> :gen_fsm.sync_send_event(via_tuple(message.user), message.text)
     end
   end
@@ -35,7 +35,7 @@ defmodule BotGame.Game.Player do
   # Callbacks
 
   def init(data) do
-    BotGame.Slack.send_dm("Welcome to the game!", data.id)
+    Hanzo.Slack.send_dm("Welcome to the game!", data.id)
     {:ok, :question, data, 0}
   end
 
@@ -45,9 +45,9 @@ defmodule BotGame.Game.Player do
     question = Enum.at(data.questions, data.current_question)
 
     if question do
-      BotGame.Slack.send_dm(question.text, data.id)
+      Hanzo.Slack.send_dm(question.text, data.id)
       Enum.each(question.answers, fn({k, v}) ->
-        BotGame.Slack.send_dm("#{k}. #{v}", data.id)
+        Hanzo.Slack.send_dm("#{k}. #{v}", data.id)
       end)
       {:next_state, :await_answer, data}
     else
@@ -63,27 +63,31 @@ defmodule BotGame.Game.Player do
 
     case Enum.member?(possible_answers, answer) do
       true ->
-        BotGame.Slack.send_dm("You answered #{answer}!", data.id)
+        Hanzo.Slack.send_dm("You answered #{answer}!", data.id)
         data = Data.put_answer(data, answer)
         {:reply, :ok, :question, data, 0}
       false ->
-        BotGame.Slack.send_dm("That wasn't a valid answer. Try again.", data.id)
+        Hanzo.Slack.send_dm("That wasn't a valid answer. Try again.", data.id)
         {:reply, :ok, :await_answer, data}
     end
   end
 
   def finished(:timeout, data) do
-    BotGame.Slack.send_dm("You're all done! Once the results are in they'll be announced.", data.id)
+    Hanzo.Slack.send_dm("You're all done! Once the results are in they'll be announced.", data.id)
     {:next_state, :finished, data}
   end
   def finished(_message, _from, data) do
-    BotGame.Slack.send_dm("You're all done! Once the results are in they'll be announced.", data.id)
+    Hanzo.Slack.send_dm("You're all done! Once the results are in they'll be announced.", data.id)
     {:reply, :ok, :finished, data}
   end
 
   # Private
 
+  defp ref(id) do
+    {:player, id}
+  end
+
   defp via_tuple(id) do
-    {:via, BotGame.Registry, {:player, id}}
+    {:via, Hanzo.Registry, ref(id)}
   end
 end

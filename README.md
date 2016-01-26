@@ -1,4 +1,4 @@
-# BotGame
+# Hanzo
 
 Slack bot for games.
 
