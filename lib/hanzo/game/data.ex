@@ -27,6 +27,7 @@ defmodule Hanzo.Game.Data do
   end
 
   def put_player_finished(data, player) do
+    Hanzo.Parse.save_player_data(player)
     %{data | players_finished: [player | data.players_finished]}
     |> persist()
   end
