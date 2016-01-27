@@ -68,7 +68,10 @@ defmodule Hanzo.Game.Player do
     question = Enum.at(data.questions, data.current_question)
     possible_answers = Enum.map(question.answers, fn({k, _v}) -> k end)
 
-    answer = String.first(message)
+    answer =
+      message
+      |> String.first()
+      |> String.downcase()
 
     case Enum.member?(possible_answers, answer) do
       true ->
