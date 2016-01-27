@@ -14,9 +14,8 @@ defmodule Hanzo.Game.Player.Data do
   def new(id, channel, questions) do
     case :ets.lookup(:player_data, id) do
       [] ->
-        data = %__MODULE__{id: id, channel: channel, questions: questions}
-        :ets.insert(:player_data, {id, data})
-        data
+        %__MODULE__{id: id, channel: channel, questions: questions}
+        |> persist()
       [{^id, data}] ->
         data
     end
@@ -26,16 +25,18 @@ defmodule Hanzo.Game.Player.Data do
     current_question = Enum.at(data.questions, data.current_question)
     answers = data.answers |> Map.put(current_question.id, answer)
 
-    data = Map.put(data, :answers, answers)
-    data = Map.put(data, :current_question, data.current_question + 1)
-
-    :ets.insert(:player_data, {data.id, data})
-
     data
+    |> Map.put(:answers, answers)
+    |> Map.put(:current_requestion, data.current_request + 1)
+    |> persist()
   end
 
   def put_state(data, state) do
-    data = %{data | state: state}
+    %{data | state: state}
+    |> persist()
+  end
+
+  defp persist(data) do
     :ets.insert(:player_data, {data.id, data})
     data
   end

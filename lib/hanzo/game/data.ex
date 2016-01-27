@@ -8,27 +8,35 @@ defmodule Hanzo.Game.Data do
   (not great).
   """
 
-  defstruct channel: nil, players: [], state: :start
+  defstruct channel: nil, players: [], players_finished: [],
+  state: :start
 
   def new(channel) do
     case :ets.lookup(:game_data, channel) do
       [] ->
-        data = %__MODULE__{channel: channel}
-        :ets.insert(:game_data, {channel, data})
-        data
+        %__MODULE__{channel: channel}
+        |> persist()
       [{^channel, data}] ->
         data
     end
   end
 
   def put_player(data, player) do
-    data = %{data | players: [player | data.players]}
-    :ets.insert(:game_data, {data.channel, data})
-    data
+    %{data | players: [player | data.players]}
+    |> persist()
+  end
+
+  def put_player_finished(data, player) do
+    %{data | players_finished: [player | data.players_finished]}
+    |> persist()
   end
 
   def put_state(data, state) do
-    data = %{data | state: state}
+    %{data | state: state}
+    |> persist()
+  end
+
+  defp persist(data) do
     :ets.insert(:game_data, {data.channel, data})
     data
   end
