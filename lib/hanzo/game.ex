@@ -19,6 +19,13 @@ defmodule Hanzo.Game do
     end
   end
 
+  def player_finished(user, channel) do
+    case Hanzo.Registry.whereis_name(ref(channel)) do
+      :undefined -> :ok # Game isn't running
+      pid -> :gen_fsm.send_event(pid, {:player_finished, user})
+    end
+  end
+
   # States
 
   def start(:timeout, data) do
@@ -31,6 +38,14 @@ defmodule Hanzo.Game do
     # Don't want a player starting 2 games
     unless Enum.member?(data.players, id) do
       data = add_new_player(data, id)
+    end
+
+    {:next_state, data.state, data}
+  end
+  def playing({:player_finished, id}, data) do
+    # Don't want them being "finished" twice
+    unless Enum.member?(data.players_finished, id) do
+      data = Data.put_player_finished(data, id)
     end
 
     {:next_state, data.state, data}

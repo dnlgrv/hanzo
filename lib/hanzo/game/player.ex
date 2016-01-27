@@ -85,6 +85,7 @@ defmodule Hanzo.Game.Player do
 
   def finished(:timeout, data) do
     send_dm("You're all done! Once the results are in they'll be announced.", data.id)
+    Hanzo.Game.player_finished(data.id, data.channel)
     {:next_state, data.state, data}
   end
   def finished(_message, _from, data) do
