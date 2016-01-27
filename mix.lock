@@ -5,6 +5,8 @@
   "idna": {:hex, :idna, "1.0.3"},
   "jsx": {:hex, :jsx, "2.4.0"},
   "mimerl": {:hex, :mimerl, "1.0.2"},
-  "slack": {:hex, :slack, "0.4.1"},
+  "parse_client": {:git, "https://github.com/cazrin/parse_elixir_client", "23a99ec8e4a8280754b3b14d3e1f2072cccf769b", [branch: "no-bang-atoms"]},
+  "poison": {:hex, :poison, "1.4.0"},
+  "slack": {:git, "https://github.com/cazrin/Elixir-Slack.git", "1ac97ff008b979482bf942a1e26c7630e94b39c6", [branch: "relaxed-http-poison-version"]},
   "ssl_verify_hostname": {:hex, :ssl_verify_hostname, "1.0.5"},
   "websocket_client": {:git, "https://github.com/jeremyong/websocket_client.git", "f6892c8b55004008ce2d52be7d98b156f3e34569", []}}
