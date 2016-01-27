@@ -1,6 +1,7 @@
 defmodule Hanzo.Game.Player do
   use GenFSM
   alias Hanzo.Game.Player.Data
+  import Hanzo.Slack, only: [send_dm: 2]
 
   @questions [
     %{
@@ -21,8 +22,8 @@ defmodule Hanzo.Game.Player do
     }
   ]
 
-  def start_link(id, game_id) do
-    GenFSM.start_link(__MODULE__, Data.new(id, game_id, @questions), name: via_tuple(id))
+  def start_link(id, channel) do
+    GenFSM.start_link(__MODULE__, Data.new(id, channel, @questions), name: via_tuple(id))
   end
 
   def answer(message) do
@@ -35,23 +36,31 @@ defmodule Hanzo.Game.Player do
   # Callbacks
 
   def init(data) do
-    Hanzo.Slack.send_dm("Welcome to the game!", data.id)
-    {:ok, :question, data, 0}
+    {:ok, data.state, data, 0}
   end
 
   # States
+
+  def start(:timeout, data) do
+    send_dm("Welcome to the game!", data.id)
+    data = Data.put_state(data, :question)
+    {:next_state, data.state, data, 0}
+  end
 
   def question(:timeout, data) do
     question = Enum.at(data.questions, data.current_question)
 
     if question do
-      Hanzo.Slack.send_dm(question.text, data.id)
+      send_dm(question.text, data.id)
       Enum.each(question.answers, fn({k, v}) ->
         Hanzo.Slack.send_dm("#{k}. #{v}", data.id)
       end)
-      {:next_state, :await_answer, data}
+
+      data = Data.put_state(data, :await_answer)
+      {:next_state, data.state, data}
     else
-      {:next_state, :finished, data, 0}
+      data = Data.put_state(data, :finished)
+      {:next_state, data.state, data, 0}
     end
   end
 
@@ -63,22 +72,24 @@ defmodule Hanzo.Game.Player do
 
     case Enum.member?(possible_answers, answer) do
       true ->
-        Hanzo.Slack.send_dm("You answered #{answer}!", data.id)
+        send_dm("You answered #{answer}!", data.id)
         data = Data.put_answer(data, answer)
-        {:reply, :ok, :question, data, 0}
+        data = Data.put_state(data, :question)
+        {:reply, :ok, data.state, data, 0}
       false ->
-        Hanzo.Slack.send_dm("That wasn't a valid answer. Try again.", data.id)
-        {:reply, :ok, :await_answer, data}
+        send_dm("That wasn't a valid answer. Try again.", data.id)
+        data = Data.put_state(data, :await_answer)
+        {:reply, :ok, data.state, data}
     end
   end
 
   def finished(:timeout, data) do
-    Hanzo.Slack.send_dm("You're all done! Once the results are in they'll be announced.", data.id)
-    {:next_state, :finished, data}
+    send_dm("You're all done! Once the results are in they'll be announced.", data.id)
+    {:next_state, data.state, data}
   end
   def finished(_message, _from, data) do
-    Hanzo.Slack.send_dm("You're all done! Once the results are in they'll be announced.", data.id)
-    {:reply, :ok, :finished, data}
+    send_dm("You're all done! Once the results are in they'll be announced.", data.id)
+    {:reply, :ok, data.state, data}
   end
 
   # Private

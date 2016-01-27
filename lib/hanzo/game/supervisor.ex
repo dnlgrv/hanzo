@@ -10,7 +10,9 @@ defmodule Hanzo.Game.Supervisor do
   end
 
   def init(:ok) do
+    # These being public is not the best
     :ets.new(:game_data, [:named_table, :public])
+    :ets.new(:player_data, [:named_table, :public])
 
     children = [
       worker(Hanzo.Game, [], restart: :transient)
