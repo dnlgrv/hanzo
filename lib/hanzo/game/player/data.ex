@@ -27,7 +27,7 @@ defmodule Hanzo.Game.Player.Data do
 
     data
     |> Map.put(:answers, answers)
-    |> Map.put(:current_requestion, data.current_request + 1)
+    |> Map.put(:current_question, data.current_question + 1)
     |> persist()
   end
 
