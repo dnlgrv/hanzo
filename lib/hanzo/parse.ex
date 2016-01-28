@@ -39,6 +39,7 @@ defmodule Hanzo.Parse do
     |> Map.get(:results)
     |> Enum.sort_by(&(&1.order))
     |> Enum.map(fn(question) ->
+      image_url = Map.get(question, :imageURL, nil)
       question_object = %{"__type" => "Pointer", "className" => "Question", "objectId" => question.objectId}
 
       answers =
@@ -52,6 +53,7 @@ defmodule Hanzo.Parse do
       %{
         key: question.key,
         text: question.text,
+        image: image_url,
         answers: answers
       }
     end)

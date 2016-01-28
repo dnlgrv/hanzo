@@ -101,7 +101,7 @@ defmodule Hanzo.Slack do
       [%{title: title, fallback: title, text: "", image_url: image_url}]
       |> JSX.encode!()
 
-    api_url("chat.postMessage") <> "&channel=#{channel}&as_user=true&attachments=#{attachments}"
+    api_url("chat.postMessage") <> "&channel=#{channel}&as_user=true&attachments=#{URI.encode(attachments)}"
     |> HTTPoison.get()
 
     {:noreply, client_ref}
