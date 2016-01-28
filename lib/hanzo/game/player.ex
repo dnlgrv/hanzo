@@ -3,27 +3,8 @@ defmodule Hanzo.Game.Player do
   alias Hanzo.Game.Player.Data
   import Hanzo.Slack, only: [send_dm: 2]
 
-  @questions [
-    %{
-      id: "colour", text: "What's the best colour?", answers: [
-        {"a", "Red"},
-        {"b", "Blue"},
-        {"c", "Green"}
-      ]
-    },
-
-    %{
-      id: "president", text: "Who's the president?", answers: [
-        {"a", "Jesus"},
-        {"b", "Obama"},
-        {"c", "Dan"},
-        {"d", "None of the above"}
-      ]
-    }
-  ]
-
-  def start_link(id, channel) do
-    GenFSM.start_link(__MODULE__, Data.new(id, channel, @questions), name: via_tuple(id))
+  def start_link(id, channel, questions) do
+    GenFSM.start_link(__MODULE__, Data.new(id, channel, questions), name: via_tuple(id))
   end
 
   def answer(message) do

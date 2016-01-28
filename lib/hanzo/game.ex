@@ -31,13 +31,14 @@ defmodule Hanzo.Game do
   def start(:timeout, data) do
     send_message("Game started.\nIf you want to participate, just @ me saying 'play'.", data.channel)
     data = Data.put_state(data, :playing)
+    data = Data.put_questions(data, fetch_questions)
     {:next_state, data.state, data, 0}
   end
 
   def playing({:new_player, id}, data) do
     # Don't want a player starting 2 games
     unless Enum.member?(data.players, id) do
-      data = add_new_player(data, id)
+      data = add_new_player(data, id, data.questions)
     end
 
     {:next_state, data.state, data}
@@ -56,8 +57,8 @@ defmodule Hanzo.Game do
 
   # Private
 
-  defp add_new_player(data, id) do
-    case Hanzo.Game.Player.Supervisor.new_player(id, data.channel) do
+  defp add_new_player(data, id, questions) do
+    case Hanzo.Game.Player.Supervisor.new_player(id, data.channel, questions) do
       {:ok, _} ->
         send_message("<@#{id}> has joined the game!", data.channel)
         data = Data.put_player(data, id)
@@ -65,6 +66,10 @@ defmodule Hanzo.Game do
     end
 
     data
+  end
+
+  defp fetch_questions do
+    Hanzo.Parse.questions
   end
 
   defp ref(channel) do

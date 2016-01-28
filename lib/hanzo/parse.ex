@@ -1,4 +1,13 @@
 defmodule Hanzo.Parse do
+  @moduledoc ~S"""
+  Module for interacting with Parse.
+  """
+
+  @doc ~S"""
+  Gets the player's data from ETS and saves it to Parse.
+
+  Removes the player's previous answers if there are any.
+  """
   def save_player_data(id) do
     [{^id, data}] = :ets.lookup(:player_data, id)
 
@@ -19,6 +28,32 @@ defmodule Hanzo.Parse do
         "questionKey" => key,
         "answer" => answer
       })
+    end)
+  end
+
+  @doc ~S"""
+  Gets the questions and the possible answers, building up a map.
+  """
+  def questions do
+    ParseClient.query("classes/Question", %{})
+    |> Map.get(:results)
+    |> Enum.sort_by(&(&1.order))
+    |> Enum.map(fn(question) ->
+      question_object = %{"__type" => "Pointer", "className" => "Question", "objectId" => question.objectId}
+
+      answers =
+        ParseClient.query("classes/QuestionAnswer", %{"$relatedTo" => %{object: question_object, key: "answers"}})
+        |> Map.get(:results)
+        |> Enum.sort_by(&(&1.key))
+        |> Enum.map(fn(answer) ->
+          {answer.key, answer.value}
+        end)
+
+      %{
+        key: question.key,
+        text: question.text,
+        answers: answers
+      }
     end)
   end
 

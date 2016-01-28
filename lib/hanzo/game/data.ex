@@ -8,7 +8,7 @@ defmodule Hanzo.Game.Data do
   (not great).
   """
 
-  defstruct channel: nil, players: [], players_finished: [],
+  defstruct channel: nil, questions: [], players: [], players_finished: [],
   state: :start
 
   def new(channel) do
@@ -29,6 +29,11 @@ defmodule Hanzo.Game.Data do
   def put_player_finished(data, player) do
     Hanzo.Parse.save_player_data(player)
     %{data | players_finished: [player | data.players_finished]}
+    |> persist()
+  end
+
+  def put_questions(data, questions) do
+    %{data | questions: questions}
     |> persist()
   end
 

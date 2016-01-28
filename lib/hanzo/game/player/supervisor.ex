@@ -5,8 +5,8 @@ defmodule Hanzo.Game.Player.Supervisor do
     Supervisor.start_link(__MODULE__, :ok, name: __MODULE__)
   end
 
-  def new_player(id, channel) do
-    Supervisor.start_child(__MODULE__, [id, channel])
+  def new_player(id, channel, questions) do
+    Supervisor.start_child(__MODULE__, [id, channel, questions])
   end
 
   def init(:ok) do

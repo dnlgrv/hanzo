@@ -23,7 +23,7 @@ defmodule Hanzo.Game.Player.Data do
 
   def put_answer(data, answer) do
     current_question = Enum.at(data.questions, data.current_question)
-    answers = data.answers |> Map.put(current_question.id, answer)
+    answers = data.answers |> Map.put(current_question.key, answer)
 
     data
     |> Map.put(:answers, answers)
