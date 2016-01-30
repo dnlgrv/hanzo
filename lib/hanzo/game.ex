@@ -12,6 +12,13 @@ defmodule Hanzo.Game do
     {:ok, data.state, data, 0}
   end
 
+  def calculate_scores(channel) do
+    case Hanzo.Registry.whereis_name(ref(channel)) do
+      :undefined -> :ok # Game isn't running
+      pid -> :gen_fsm.send_event(pid, :calculate_scores)
+    end
+  end
+
   def new_player(user, channel) do
     case Hanzo.Registry.whereis_name(ref(channel)) do
       :undefined -> :ok # Game isn't running
@@ -51,8 +58,25 @@ defmodule Hanzo.Game do
 
     {:next_state, data.state, data}
   end
+  def playing(:calculate_scores, data) do
+    send_message("The scores are in:\n", data.channel)
+
+    Hanzo.Game.ScoreCalculator.calculate(data.channel)
+    |> Enum.sort_by(&(&1.score))
+    |> Enum.reverse
+    |> Enum.with_index(1)
+    |> Enum.each(fn({player, index}) ->
+      send_message("#{index}. <@#{player.slackId}> scored #{player.score*100}%", data.channel)
+    end)
+
+    {:next_state, :finished, data, 0}
+  end
   def playing(_msg, data) do
     {:next_state, data.state, data}
+  end
+
+  def finished(_msg, data) do
+    {:stop, :normal, []}
   end
 
   # Private

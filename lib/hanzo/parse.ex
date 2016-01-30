@@ -31,6 +31,20 @@ defmodule Hanzo.Parse do
     end)
   end
 
+  def players(channel_id) do
+    ParseClient.query("classes/Player", %{"channelId" => channel_id})
+    |> Map.get(:results)
+    |> Enum.map(fn(player) ->
+      player_object = %{"__type" => "Pointer", "className" => "Player", "objectId" => player.objectId}
+
+      answers =
+        ParseClient.query("classes/PlayerAnswer", %{"playerId" => player_object})
+        |> Map.get(:results)
+
+      Map.put(player, :answers, answers)
+    end)
+  end
+
   @doc ~S"""
   Gets the questions and the possible answers, building up a map.
   """
@@ -40,6 +54,8 @@ defmodule Hanzo.Parse do
     |> Enum.sort_by(&(&1.order))
     |> Enum.map(fn(question) ->
       image_url = Map.get(question, :imageURL, nil)
+      correct_answer = Map.get(question, :correctAnswer, "")
+
       question_object = %{"__type" => "Pointer", "className" => "Question", "objectId" => question.objectId}
 
       answers =
@@ -54,7 +70,8 @@ defmodule Hanzo.Parse do
         key: question.key,
         text: question.text,
         image: image_url,
-        answers: answers
+        answers: answers,
+        correct_answer: correct_answer
       }
     end)
   end
