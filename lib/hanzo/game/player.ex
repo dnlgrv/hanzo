@@ -39,9 +39,12 @@ defmodule Hanzo.Game.Player do
         send_dm(question.text, data.id)
       end
 
-      Enum.each(question.answers, fn({k, v}) ->
-        send_dm("#{k}. #{v}", data.id)
+      question.answers
+      |> Enum.map(fn({k, v}) ->
+        "#{k}. #{v}"
       end)
+      |> Enum.join("\n")
+      |> send_dm(data.id)
 
       data = Data.put_state(data, :await_answer)
       {:next_state, data.state, data}
