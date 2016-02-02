@@ -53,6 +53,9 @@ defmodule Hanzo.Game.Player do
       {:next_state, data.state, data, 0}
     end
   end
+  def question(_msg, _from, data) do
+    {:reply, :ok, data.state, data, 0}
+  end
 
   def await_answer(message, _from, data) do
     question = Enum.at(data.questions, data.current_question)
@@ -68,7 +71,7 @@ defmodule Hanzo.Game.Player do
         send_dm("You answered #{answer}!", data.id)
         data = Data.put_answer(data, answer)
         data = Data.put_state(data, :question)
-        {:reply, :ok, data.state, data, 0}
+        {:reply, :ok, data.state, data, 2500}
       false ->
         send_dm("That wasn't a valid answer. Try again.", data.id)
         data = Data.put_state(data, :await_answer)
